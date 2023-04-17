@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Higher or Lower Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Higher or Lower Game</h1>
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="celebrities">
+            <div class="celeb-left" id="celeb-left">{{ celeb_left }}</div>
+            <div class="buttons">
+                <button id="higher-btn">Higher</button>
+                <button id="lower-btn">Lower</button>
+            </div>
+            <div class="celeb-right" id="celeb-right">{{ celeb_right }}</div>
+        </div>
+        <div class="message" id="message"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
