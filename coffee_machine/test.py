@@ -1,80 +1,55 @@
-from tkinter import *
+import pygame
+import random
 
-ingredients = {
-    "water": 500,
-    "coffee_beans": 100,
-    "milk": 200,
-    "cups": 5
-}
+# Initialize Pygame and set up the window
+pygame.init()
+screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption("Particle System")
 
-coffee_types = {
-    "espresso": {"water": 50, "coffee_beans": 20, "milk": 0, "cost": 2.5},
-    "latte": {"water": 100, "coffee_beans": 20, "milk": 50, "cost": 3.0},
-    "cappuccino": {"water": 100, "coffee_beans": 20, "milk": 100, "cost": 3.5}
-}
+# Define the Particle class
+class Particle:
+    def __init__(self, x, y, size):
+        self.x = x
+        self.y = y
+        self.size = size
+        self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        self.vx = random.randint(-5, 5)
+        self.vy = random.randint(-5, 5)
+        self.life = random.randint(20, 50)
 
-def make_coffee(coffee_type):
-    """
-    Function to make a cup of coffee.
-    """
-    global ingredients
-    water_needed = coffee_type["water"]
-    coffee_beans_needed = coffee_type["coffee_beans"]
-    milk_needed = coffee_type["milk"]
-    cost = coffee_type["cost"]
+    def update(self):
+        self.x += self.vx
+        self.y += self.vy
+        self.life -= 1
+        if self.life <= 0:
+            particles.remove(self)
 
-    enough_ingredients = all(ingredients.get(ingredient, 0) >= quantity for ingredient, quantity in coffee_type.items() if ingredient != "cost")
+    def draw(self, surface):
+        pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), self.size)
 
-    if enough_ingredients:
-        for ingredient, quantity in coffee_type.items():
-            if ingredient != "cost":
-                ingredients[ingredient] -= quantity
-        message.set(f"Making {coffee_type_name}...\nEnjoy your coffee!")
-        cost_label.config(text=f"Cost: ${cost:.2f}")
-    else:
-        message.set("Sorry, not enough ingredients.")
-        cost_label.config(text="Cost:")
+# Set up the clock and run the game loop
+clock = pygame.time.Clock()
+particles = []
+running = True
+while running:
+    clock.tick(60)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
-def refill_ingredients():
-    global ingredients
-    ingredients = {
-        "water": 500,
-        "coffee_beans": 100,
-        "milk": 200,
-        "cups": 5
-    }
-    message.set("Ingredients refilled.")
-    cost_label.config(text="Cost:")
+    # Spawn new particles when the mouse is clicked
+    if pygame.mouse.get_pressed()[0]:
+        x, y = pygame.mouse.get_pos()
+        for i in range(10):
+            particles.append(Particle(x, y, random.randint(5, 20)))
 
-def buy_coffee():
-    global coffee_type_name
-    coffee_type_name = var.get()
-    coffee_type = coffee_types[coffee_type_name]
-    cost = make_coffee(coffee_type)
-    if cost:
-        message.set(f"You bought {coffee_type_name} for ${cost:.2f}")
+    # Update and draw the particles
+    for particle in particles:
+        particle.update()
+        particle.draw(screen)
 
-root = Tk()
-root.title("Coffee Machine")
+    # Update the display
+    pygame.display.update()
 
-var = StringVar()
-var.set("espresso")
-
-# create labels and buttons
-Label(root, text="Select coffee type:").pack(pady=5)
-Radiobutton(root, text="Espresso", variable=var, value="espresso").pack()
-Radiobutton(root, text="Latte", variable=var, value="latte").pack()
-Radiobutton(root, text="Cappuccino", variable=var, value="cappuccino").pack()
-
-Button(root, text="Buy", command=buy_coffee).pack(pady=10)
-Button(root, text="Refill ingredients", command=refill_ingredients).pack(pady=10)
-
-message = StringVar()
-message.set("Welcome!")
-message_label = Label(root, textvariable=message, font=("Arial", 14), fg="green")
-message_label.pack(pady=20)
-
-cost_label = Label(root, text="Cost:", font=("Arial", 14))
-cost_label.pack(pady=5)
-
-root.mainloop()
+# Quit Pygame when the game loop ends
+pygame.quit()
